@@ -13,9 +13,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.SupportMapFragment;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.*;
 import org.w3c.dom.Text;
 
 
@@ -46,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void search(View view) {
-        JSONObject JSONnotString;
+        String JSONString;
         
         EditText editText = (EditText) findViewById(R.id.addressField);
         String address = editText.getText().toString();
@@ -58,27 +56,29 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
-            JSONnotString = getHTML(geocode_API_call);
-            System.out.println(JSONnotString.toString());
+            JSONString = getHTML(geocode_API_call);
+            System.out.println(JSONString);
             //Reese is driving now
             //take in coordinates
-            String latitude = JSONnotString.getJSONObject("location").getString("lat");
-            String longitude = JSONnotString.getJSONObject("location").getString("lng");
+            //String latitude = JSONString.getJSONObject("location").getString("lat");
+            //String longitude = JSONString.getJSONObject("location").getString("lng");
 
             //Map
+            /*
             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.mapView);
 
-            System.out.println("Reese's " + longitude);
+            //System.out.println("Reese's " + longitude);
 
             //Dark Sky
             String darkSky_API_call = "https://api.darksky.net/forecast/bd984ad3548b8ad1c9ea30f8ededb6af/" + longitude + "," + latitude;
-            JSONObject dsResult = getHTML(darkSky_API_call);
+            String dsResult = getHTML(darkSky_API_call);
             String windNum = dsResult.getJSONObject("").getString("") + " mph";
             String tempNum = dsResult.getJSONObject("").getString("") + " degrees F";
             String humidNum = dsResult.getJSONObject("").getString("") + "%";
             String precipNum = dsResult.getJSONObject("").getString("") + "%";
             String precipType = dsResult.getJSONObject("").getString("");
+
 
             TextView changeTemp = (TextView) findViewById(R.id.temp);
             changeTemp.setText(tempNum);
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             changeHum.setText(humidNum);
             TextView changePrecip = (TextView) findViewById(R.id.precip);
             changePrecip.setText(precipType + " " + precipNum);
-
+*/
             //implement a way to take in more inputs
 
         } catch (Exception e) {
@@ -114,20 +114,20 @@ public class MainActivity extends AppCompatActivity {
 
     //this is Luca driving
 
-    public JSONObject getHTML(String toRead) throws Exception {
+    public String getHTML(String toRead) throws Exception {
 
-        final JSONObject[] toReturn = new JSONObject[1];
+        final String[] toReturn = new String[1];
 
-        JsonObjectRequest jRequest = new JsonObjectRequest(Request.Method.GET,toRead,null,
+        //JsonObjectRequest jRequest = new JsonObjectRequest(Request.Method.GET,toRead,null,
 
-        //StringRequest stringRequest = new StringRequest(Request.Method.GET, toRead,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, toRead,
 
-                new Response.Listener<JSONObject>() {
+                new Response.Listener<String>() {
 
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(String response) {
 
-                        System.out.println(response.toString());
+                        System.out.println(response);
                         toReturn[0] = response;
                     }
                 },
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
         );
 
-        requestQueue.add(jRequest);
+        requestQueue.add(stringRequest);
 
         return toReturn[0];
     }
