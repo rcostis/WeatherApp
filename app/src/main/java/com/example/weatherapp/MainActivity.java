@@ -1,9 +1,12 @@
 package com.example.weatherapp;
 
 import android.app.DownloadManager;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -11,6 +14,7 @@ import com.android.volley.*;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.util.Strings;
 import com.google.android.gms.maps.SupportMapFragment;
 
 import org.json.*;
@@ -31,22 +35,62 @@ import javax.xml.transform.ErrorListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static String USER_AGENT = "Mozilla/5.0";
-    private String JSONstring_returned;
-
+    EditText addy;
+    Button go;
     String Google_API = "AIzaSyASMFasDiMzu3xcRWY4I-rPiqjibX7hw5s";
     String DarkSky_API = "bd984ad3548b8ad1c9ea30f8ededb6af";
-    RequestQueue requestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //requestQueue = Volley.newRequestQueue(this);
+        addy = (EditText)findViewById(R.id.addressField);
+        go = (Button)findViewById(R.id.goButton);
+
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new GetCoordinates().exe
+            }
+        });
+
+
+    }
+
+    private class GetCoordinates extends AsyncTask<String,Void,String>{
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String response;
+            try{
+                String address = strings[0];
+                HttpDataHandler http = new HttpDataHandler();
+                String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + Google_API;
+                response = http.getHTTPData(url);
+                return response;
+            }
+            catch(Exception e){
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            try{
+                JSONObject jDog =  new JSONObject(s);
+                String latitude = jDog.getJSONObject("location").getString("lat");
+                String longitude = jDog.getJSONObject("location").getString("lng");
+                System.out.println(latitude + " and the long is " + longitude);
+            }
+            catch (JSONException j){
+                j.printStackTrace();
+            }
+        }
     }
 
     public void search(View view) {
-        String JSONString;
+        String JSONString = "";
         
         EditText editText = (EditText) findViewById(R.id.addressField);
         String address = editText.getText().toString();
@@ -58,16 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-
-
-            JSONString = testFunc(geocode_API_call);
-            //requestQueue.start();
-
-
-            System.out.println("cuck me");
-
-            System.out.println(JSONString);
-            System.out.println("I like pie");
             JSONObject jObj = new JSONObject(JSONString);
 
 
@@ -108,76 +142,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             System.out.println("well shit");
         }
-        //System.out.println(JSONString);
 
-        /*try {
-
-            JSONObject jsonObj = new JSONObject(JSONnotString);
-            System.out.println("HI: " + jsonObj.toString());
-
-
-
-        } catch (Exception e) {
-            System.out.println("well shit 2");
-        }
-        */
-
-
-
-    }
-
-    //this is Luca driving
-
-
-    public static String testFunc(String input) {
-            try {
-                String finalStr = "";
-                URL url = new URL(input);
-                BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-                String str = "";
-                while (null != (str = br.readLine())) {
-                    finalStr += str;
-                }
-                return finalStr;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return "didnt work";
-            }
-        }
-
-
-
-    public String getHTML(String toRead) throws Exception {
-
-        //final String[] toReturn = new String[1];
-
-        //JsonObjectRequest jRequest = new JsonObjectRequest(Request.Method.GET,toRead,null,
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, toRead,
-
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-
-                        //System.out.println(response);
-                        //toReturn[0] = response;
-                        //JSONstring_returned = response;
-                        //System.out.println("success bitch");
-
-                    }
-                },
-                new com.android.volley.Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                }
-
-        );
-
-        requestQueue.add(stringRequest);
-
-        return "poo";
     }
 
 }
