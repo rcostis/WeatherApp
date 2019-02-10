@@ -27,9 +27,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.transform.ErrorListener;
 
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     Button go;
     String Google_API = "AIzaSyASMFasDiMzu3xcRWY4I-rPiqjibX7hw5s";
     String DarkSky_API = "bd984ad3548b8ad1c9ea30f8ededb6af";
+    String lati;
+    String longi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
         go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new GetCoordinates().exe
+                new GetCoordinates().execute(addy.getText().toString().replace(" ","+"));
+                new GetWeather().execute();
             }
         });
 
@@ -78,10 +84,66 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s){
             try{
+                System.out.println(s);
                 JSONObject jDog =  new JSONObject(s);
-                String latitude = jDog.getJSONObject("location").getString("lat");
-                String longitude = jDog.getJSONObject("location").getString("lng");
-                System.out.println(latitude + " and the long is " + longitude);
+                lati = ((JSONArray)jDog.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").get("lat").toString();
+                longi = ((JSONArray)jDog.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").get("lng").toString();
+
+
+
+                //System.out.println(latitude + " and the long is " + longitude);
+
+            }
+            catch (JSONException j){
+                j.printStackTrace();
+            }
+        }
+    }
+
+    private class GetWeather extends AsyncTask<String,Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String response2;
+            try{
+
+                HttpDataHandler http2 = new HttpDataHandler();
+                String url2 = "https://api.darksky.net/forecast/bd984ad3548b8ad1c9ea30f8ededb6af/" + longi + "," + lati;
+                response2 = http2.getHTTPData(url2);
+                return response2;
+            }
+            catch(Exception e){
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            try{
+                System.out.println(s);
+                JSONObject jDark =  new JSONObject(s);
+                String windNum = jDark.getJSONObject("").getString("") + " mph";
+                String tempNum = jDark.getJSONObject("").getString("") + " degrees F";
+                String humidNum = jDark.getJSONObject("").getString("") + "%";
+                String precipNum = jDark.getJSONObject("").getString("") + "%";
+                String precipType = jDark.getJSONObject("").getString("");
+
+
+                TextView changeTemp = (TextView) findViewById(R.id.temp);
+                changeTemp.setText(tempNum);
+                TextView changeWind = (TextView) findViewById(R.id.windSpeed);
+                changeWind.setText(windNum);
+                TextView changeHum = (TextView) findViewById(R.id.humidity);
+                changeHum.setText(humidNum);
+                TextView changePrecip = (TextView) findViewById(R.id.precip);
+                changePrecip.setText(precipType + " " + precipNum);
+
+
+
+
+                //System.out.println(latitude + " and the long is " + longitude);
+
             }
             catch (JSONException j){
                 j.printStackTrace();
