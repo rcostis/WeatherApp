@@ -17,6 +17,7 @@ import org.json.*;
 import org.w3c.dom.Text;
 
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ import javax.xml.transform.ErrorListener;
 public class MainActivity extends AppCompatActivity {
 
     private static String USER_AGENT = "Mozilla/5.0";
+    private String JSONstring_returned;
 
     String Google_API = "AIzaSyASMFasDiMzu3xcRWY4I-rPiqjibX7hw5s";
     String DarkSky_API = "bd984ad3548b8ad1c9ea30f8ededb6af";
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        requestQueue = Volley.newRequestQueue(this);
+        //requestQueue = Volley.newRequestQueue(this);
     }
 
     public void search(View view) {
@@ -54,14 +56,26 @@ public class MainActivity extends AppCompatActivity {
         String geocode_API_call = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + Google_API;
 
 
-
         try {
-            JSONString = getHTML(geocode_API_call);
+
+
+
+            JSONString = testFunc(geocode_API_call);
+            //requestQueue.start();
+
+
+            System.out.println("cuck me");
+
             System.out.println(JSONString);
+            System.out.println("I like pie");
+            JSONObject jObj = new JSONObject(JSONString);
+
+
             //Reese is driving now
             //take in coordinates
-            //String latitude = JSONString.getJSONObject("location").getString("lat");
-            //String longitude = JSONString.getJSONObject("location").getString("lng");
+            String latitude = jObj.getJSONObject("location").getString("lat");
+            String longitude = jObj.getJSONObject("location").getString("lng");
+            System.out.println(latitude + " and the long is " + longitude);
 
             //Map
             /*
@@ -114,9 +128,28 @@ public class MainActivity extends AppCompatActivity {
 
     //this is Luca driving
 
+
+    public static String testFunc(String input) {
+            try {
+                String finalStr = "";
+                URL url = new URL(input);
+                BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+                String str = "";
+                while (null != (str = br.readLine())) {
+                    finalStr += str;
+                }
+                return finalStr;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return "didnt work";
+            }
+        }
+
+
+
     public String getHTML(String toRead) throws Exception {
 
-        final String[] toReturn = new String[1];
+        //final String[] toReturn = new String[1];
 
         //JsonObjectRequest jRequest = new JsonObjectRequest(Request.Method.GET,toRead,null,
 
@@ -127,8 +160,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
 
-                        System.out.println(response);
-                        toReturn[0] = response;
+                        //System.out.println(response);
+                        //toReturn[0] = response;
+                        //JSONstring_returned = response;
+                        //System.out.println("success bitch");
+
                     }
                 },
                 new com.android.volley.Response.ErrorListener() {
@@ -141,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         requestQueue.add(stringRequest);
 
-        return toReturn[0];
+        return "poo";
     }
 
 }

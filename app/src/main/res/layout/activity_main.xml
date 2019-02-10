@@ -67,7 +67,7 @@
         app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addressField"
-        app:layout_constraintBottom_toTopOf=""/>
+        app:layout_constraintBottom_toTopOf="@id/temp"/>
 
     <EditText
         android:id="@+id/addressField"
