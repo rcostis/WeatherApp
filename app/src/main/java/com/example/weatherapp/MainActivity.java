@@ -2,7 +2,9 @@ package com.example.weatherapp;
 
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +17,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.util.Strings;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.*;
 import org.w3c.dom.Text;
@@ -36,7 +43,7 @@ import java.util.List;
 
 import javax.xml.transform.ErrorListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     EditText addy;
     Button go;
@@ -44,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
     String DarkSky_API = "bd984ad3548b8ad1c9ea30f8ededb6af";
     String lati;
     String longi;
+    private MapView mMapView;
+
+    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,28 +63,120 @@ public class MainActivity extends AppCompatActivity {
         addy = (EditText)findViewById(R.id.addressField);
         go = (Button)findViewById(R.id.goButton);
 
+        initGoogleMap(savedInstanceState);
+
         go.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new GetCoordinates().execute(addy.getText().toString().replace(" ","+"));
                 //new GetWeather().execute();
-                find_weather();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something after 5s = 5000ms
+                        find_weather();
+                    }
+                }, 2000);
+
             }
         });
 
 
     }
 
+    private void initGoogleMap(Bundle savedInstanceState){
+        // *** IMPORTANT ***
+        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
+        // objects or sub-Bundles.
+        Bundle mapViewBundle = null;
+        if (savedInstanceState != null) {
+            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+        }
+        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView.onCreate(mapViewBundle);
+
+        mMapView.getMapAsync(this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mMapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mMapView.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMapView.onStop();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        map.addMarker(new MarkerOptions().position(new LatLng(30.26, -97.7)).title("Marker"));
+    }
+
+    @Override
+    public void onPause() {
+        mMapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        mMapView.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
     public void find_weather(){
-        String url2 = "https://api.darksky.net/forecast/85886cf21db9be843b512d5f3bfbebf4/37.8267,-122.4233";
+        String url2 = "https://api.darksky.net/forecast/85886cf21db9be843b512d5f3bfbebf4/"+lati+","+longi;
         JsonObjectRequest jOb = new JsonObjectRequest(Request.Method.GET, url2, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
                     System.out.println(response.toString());
                     JSONObject mainObject = response.getJSONObject("currently");
-                    String temp = String.valueOf(mainObject.getDouble("temperature"));
-                    System.out.println(temp);
+                    String tempNum = String.valueOf(mainObject.getDouble("temperature")) + " degrees F";
+                    System.out.println(tempNum);
+                    String windNum = String.valueOf(mainObject.getDouble("windSpeed")) + " mph";
+                    String humidNum = String.valueOf(mainObject.getDouble("humidity"));
+                    String precipNum = String.valueOf(mainObject.getDouble("precipProbability"));
+                    //String precipType = mainObject.getString("precipType");
+
+
+                    TextView changeTemp = (TextView) findViewById(R.id.temp);
+                    changeTemp.setText(tempNum);
+                    TextView changeWind = (TextView) findViewById(R.id.windSpeed);
+                    changeWind.setText(windNum);
+                    TextView changeHum = (TextView) findViewById(R.id.humidity);
+                    changeHum.setText(humidNum);
+                    TextView changePrecip = (TextView) findViewById(R.id.precip);
+                    changePrecip.setText(precipNum);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
