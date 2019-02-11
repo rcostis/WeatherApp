@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setMap(){
-        mMapView.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(lati),Double.parseDouble(longi))));
+        //mMapView.getMapAsync().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(lati),Double.parseDouble(longi))));
 
     }
 

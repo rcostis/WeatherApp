@@ -50,9 +50,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:text=""
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
         app:layout_constraintBottom_toTopOf="@id/humidity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mapView" />
+        app:layout_constraintTop_toBottomOf="@+id/mappy" />
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mappy"
@@ -76,6 +77,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="Enter Address"
