@@ -17,6 +17,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.util.Strings;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     String DarkSky_API = "bd984ad3548b8ad1c9ea30f8ededb6af";
     String lati;
     String longi;
-    private MapView mMapView;
+    MapView mMapView;
 
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
@@ -76,12 +77,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void run() {
                         // Do something after 5s = 5000ms
                         find_weather();
+                        setMap();
                     }
                 }, 2000);
 
             }
         });
 
+
+    }
+
+    public void setMap(){
+        mMapView.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(lati),Double.parseDouble(longi))));
 
     }
 
@@ -93,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
-        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView = (MapView) findViewById(R.id.mappy);
         mMapView.onCreate(mapViewBundle);
 
         mMapView.getMapAsync(this);
@@ -133,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap map) {
         map.addMarker(new MarkerOptions().position(new LatLng(30.26, -97.7)).title("Marker"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(30.26,-97.7)));
+
     }
 
     @Override
