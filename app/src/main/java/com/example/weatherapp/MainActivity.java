@@ -56,10 +56,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 new GetCoordinates().execute(addy.getText().toString().replace(" ","+"));
-                new GetWeather().execute();
+                //new GetWeather().execute();
+                find_weather();
             }
         });
 
+
+    }
+
+    public void find_weather(){
+        String url2 = "https://api.darksky.net/forecast/85886cf21db9be843b512d5f3bfbebf4/37.8267,-122.4233";
+        JsonObjectRequest jOb = new JsonObjectRequest(Request.Method.GET, url2, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    System.out.println(response.toString());
+                    JSONObject mainObject = response.getJSONObject("currently");
+                    String temp = String.valueOf(mainObject.getDouble("temperature"));
+                    System.out.println(temp);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }
+        );
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(jOb);
 
     }
 
@@ -108,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
             try{
 
                 HttpDataHandler http2 = new HttpDataHandler();
-                String url2 = "https://api.darksky.net/forecast/bd984ad3548b8ad1c9ea30f8ededb6af/" + longi + "," + lati;
+                //String url2 = "https://api.darksky.net/forecast/85886cf21db9be843b512d5f3bfbebf4/" + lati + "," + longi;
+                String url2 = "https://api.darksky.net/forecast/85886cf21db9be843b512d5f3bfbebf4/37.8267,-122.4233";
                 response2 = http2.getHTTPData(url2);
                 return response2;
             }
@@ -123,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             try{
                 System.out.println(s);
                 JSONObject jDark =  new JSONObject(s);
-                String windNum = jDark.getJSONObject("").getString("") + " mph";
+                String windNum = ((JSONArray)jDark.get("currently")).getJSONObject(0).get("windSpeed").toString() + " mph";
                 String tempNum = jDark.getJSONObject("").getString("") + " degrees F";
                 String humidNum = jDark.getJSONObject("").getString("") + "%";
                 String precipNum = jDark.getJSONObject("").getString("") + "%";
