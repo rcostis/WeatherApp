@@ -23,6 +23,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.*;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     String lati;
     String longi;
     MapView mMapView;
+    GoogleMap gmap;
+    Marker mMarker;
 
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
@@ -70,16 +73,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 new GetCoordinates().execute(addy.getText().toString().replace(" ","+"));
-                //new GetWeather().execute();
+
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // Do something after 5s = 5000ms
+
                         find_weather();
                         setMap();
                     }
-                }, 2000);
+                }, 3000);
 
             }
         });
@@ -88,8 +91,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void setMap(){
-        //mMapView.getMapAsync().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(lati),Double.parseDouble(longi))));
-
+        gmap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lati), Double.parseDouble(longi))).title("Marker"));
+        gmap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(lati),Double.parseDouble(longi))));
+        mMapView.onResume();
     }
 
     private void initGoogleMap(Bundle savedInstanceState){
@@ -139,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap map) {
+        this.gmap = map;
+        map = gmap;
         map.addMarker(new MarkerOptions().position(new LatLng(30.26, -97.7)).title("Marker"));
         map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(30.26,-97.7)));
 
@@ -175,7 +181,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     String windNum = String.valueOf(mainObject.getDouble("windSpeed")) + " mph";
                     String humidNum = String.valueOf(mainObject.getDouble("humidity"));
                     String precipNum = String.valueOf(mainObject.getDouble("precipProbability"));
-                    //String precipType = mainObject.getString("precipType");
+                    double precipProb = Double.parseDouble(precipNum);
+                    String precipType = "";
+                    if(precipProb != 0){
+                        precipType = String.valueOf(mainObject.getString("precipType"));
+                    }
 
 
                     TextView changeTemp = (TextView) findViewById(R.id.temp);
@@ -185,7 +195,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     TextView changeHum = (TextView) findViewById(R.id.humidity);
                     changeHum.setText(humidNum);
                     TextView changePrecip = (TextView) findViewById(R.id.precip);
-                    changePrecip.setText(precipNum);
+                    if(precipProb!=0) {
+                        changePrecip.setText(precipType + " " + precipNum);
+                    }
+                    else
+                        changePrecip.setText(precipNum);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
